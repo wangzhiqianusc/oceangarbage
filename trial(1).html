@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+      integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+      crossorigin=""/>
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+      integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+      crossorigin=""></script>
+  <script src="current.js"></script>
+  <script src="estuary.js" type="text/javascript"></script>
+  <script src="garbagepatch.js" type="text/javascript"></script>
+  <script src="garbageconvergence.js" type="text/javascript"></script>
+  <script src="AnimatedMarker.js"></script>
+
+<title>Ocean Garbage Patch</title>
+
+<style>
+#map {
+height: 700px;
+}
+#description {background-color: #2f4f4f}
+</style>
+
+</head>
+
+<body>
+  <div id="description" class="vh-100 vw-100"></div>
+  <div id="legend" class="fixed top-0 left-0 pa2 mt2 ml2 br1 o-90" style="z-index: 999; width: 600px">
+    <h1 class="f3 mt0 near-white">Ocean Garbage Patch and its possible formation path</h1>
+    <p class="measure mb1 near-white">
+      This map shows the five main ocean garbage patches all over the world. With main currents and plastic ocean input from top 20 rivers.
+    </p>
+
+  </div>
+
+
+<div id="map"></div>
+
+<script>
+var map = L.map('map').setView([-8, 107.94], 4);
+var current = current
+var estuary = estuary
+var garbagepatch = garbagepatch
+var garbageconvergence = garbageconvergence
+
+L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    minZoom:4,maxZoom: 18
+}).addTo(map);
+L.geoJson(current).addTo(map);
+L.geoJson(estuary,{
+  onEachFeature: function (feature, layer) {
+    layer.bindPopup('<h1>'+feature.properties.river+'</h1><p>garbage: '+feature.properties.garbage+'</p>');
+  }
+}).addTo(map);
+
+garbagepatchlayer = L.geoJson(garbagepatch, {
+style: function(feature) {
+    return {
+      color: "red"
+    };
+},
+pointToLayer: function(feature, latlng) {
+    return new L.CircleMarker(latlng, {
+      radius: 10,
+      fillOpacity: 0.85
+    });
+},
+});
+map.addLayer(garbagepatchlayer);
+L.geoJson(garbageconvergence,{style: function(feature){
+  return{
+    color:"red"
+  };
+}}).addTo(map);
+
+var trialpoints = [[-8.47242,107.49489],[-8.67777,107],[-8.96684,106.82795],[-9.29608,105.82755],[-9.78936,105.16061],[-9.95363,104.32693],[-10.28191,103.32653],[-10.77369,102.15938],
+[-10.93745,100.65877],[-11.26467,99.82510],[-11.75482,98.82469],[-12.08110,98.15775],[-12.40698,97.49081],[-12.73246,96.82387],[-12.73246,95.82346],
+[-12.89504,94.65632],[-12.89504,93.65591],[-12.89504,92.32203],[-12.89504,91.65510],[-12.89504,90.65469],[-13.05752,89.48754],[-13.05752,88.32040],
+[-13.38215,87.15326],[-13.38215,86.15285],[-13.54430,85.31918],[-13.54430,84.48550],[-13.70635,83.65183],[-13.86828,82.48469],[-13.86828,81.31754],
+[-14.03009,80.31714],[-14.35338,79.14999],[-14.51486,78.14959],[-14.67621,77.31591],[-14.99856,76.14877],[-15.32042,75.31510],[-15.80229,73.64775],
+[-15.96266,72.31387],[-16.28301,70.81326],[-16.76256,69.31265],[-17.24090,67.97877],[-17.71801,67.14510],[-18.35217,66.97836],[-19.03548,66.38879],
+[-19.35796,66.18390],[-19.67981,65.97902],[-20.00101,65.77414],[-20.32156,65.50096],[-20.57752,65.15949],[-20.70534,64.95460],[-21.08816,64.88631],
+[-21.40642,64.88631],[-21.91419,64.88631],[-22.23064,64.95460],[-22.67246,64.88631],[-22.92430,64.68142],[-23.17567,64.54483],[-23.61442,64.47654],
+[-23.98934,64.54483],[-24.48753,64.74972],[-24.92183,64.81801],[-25.29288,64.95460],[-25.53962,65.15949],[-25.90878,65.15949],[-26.21553,65.15949],
+[-26.52147,65.56925],[-26.94842,65.63755],[-27.43440,65.91072],[-27.61609,66.25220],[-27.91824,66.66196],[-27.97857,66.79855],[-28.27971,67.27662],
+[-28.52001,67.48150],[-28.87944,67.89127],[-29.05869,68.16444],[-29.29720,68.30103],[-29.59456,68.50592],[-29.95024,68.91568],[-30.30465,69.12057],
+[-30.59902,69.53034],[-30.71652,69.87181],[-30.83387,70.28157],[-31.00963,70.55475],[-31.12663,70.69134],[-31.36019,70.89623]];
+
+var polylinet = L.polyline(trialpoints,{color:'pink', weight:8}).addTo(map);
+var greenIcon = L.icon({
+    iconUrl: 'garbage.png',
+    shadowUrl: null,
+    iconSize:     [50, 50], // size of the icon
+    iconAnchor:   [22, 40], // point of the icon which will correspond to marker's location
+});
+
+var marker = L.animatedMarker(polylinet.getLatLngs(), {
+  icon: greenIcon,
+  autoStart: true,
+  onEnd: function() {}
+}).addTo(map);
+</script>
+
+</body>
+
+</html>
